@@ -1,9 +1,9 @@
 /** https://www.mathstat.dal.ca/~selinger/random/ */
 
 #include <stdio.h>
-#include <stdlib>
+#include <stdlib.h>
 #include <time.h>
-#define SIZE = 1000;
+#define SIZE 1000
 int correct = 0;
 int predicted[SIZE];
 int input[SIZE];
