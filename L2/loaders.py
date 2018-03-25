@@ -50,7 +50,7 @@ def is_ascii(text):
     return True
 
 def number_is_ascii(number):
-    return number if number > 32 and number < 128 else False
+    return number if number >= 32 and number < 128 else False
 
 def strxor(a, b):     # xor two int (trims the longer input)
     return ([(x ^ y) for (x, y) in zip(a, b)])
@@ -75,7 +75,7 @@ def arrayOfNumberToArrayOfASCII(arrayOfNumbers):
         if number_is_ascii(i):
             ofAscii.append(asciid(i))
         else:
-            ofAscii.append("*")
+            ofAscii.append("^")
     return ofAscii
 
 def arrayOfAsciiToArrayOfNumber(arrayOfAscii):

@@ -48,15 +48,77 @@ for index1, ciphertext1 in enumerate(superarr):
         for i, letter in enumerate(arrayOfNumberToArrayOfASCII(xored)):
             if letter.isalpha() and letter in string.printable:
                 counter[i] += 1
-# print counter
 
 knownSpaceIndexes = []
-
-# Loop through all positions where a space character was possible in the current_index cipher
 for ind, val in counter.items():
-    # If a space was found at least 7 times at this index out of the 9 possible XORS, then the space character was likely from the current_index cipher!
     if val >= 7: knownSpaceIndexes.append(ind)
-print (knownSpaceIndexes) # Shows all the positions where we now know the key!
+print (knownSpaceIndexes, "<- space's indices") # Shows all the positions where we now know the key!
+print ("---------")
+
+
+oksized = []
+for ds in d:
+    if len(ds) >= size_of_seeked_cipher:
+        oksized.append(ds)
+print len(oksized)
+print oksized
+
+print "++++++++++++++++"
+
+for ciph in superarr:
+
+    xor_with_spaces = strxor(ciph, [32]*size_of_seeked_cipher)
+    for index in knownSpaceIndexes:
+        if len(xor_with_spaces) < index: pass
+        else:
+            # print(index, len(xor_with_spaces))
+            final_key[index] = xor_with_spaces[index]
+            known_key_positions.add(index)
+
+print "----------+++++++++++++---------------"
+# print knownSpaceIndexes
+# print len(xor_with_spaces)
+# print (known_key_positions)
+print ''.join(arrayOfNumberToArrayOfASCII(final_key))
+
+
+# now brute xor against non space indiced cipher letters
+# for dCipher in oksized:
+#     out = []
+#     for iterator, possibleLetter in enumerate(dCipher):
+#         if iterator in knownSpaceIndexes:
+#             out.append(32)
+#         else:
+#             xored = xor(possibleLetter, ord('I'))
+#             if xored > 32 and xored < 127:
+#                 out.append(xored)
+#     print(''.join(arrayOfNumberToArrayOfASCII(out)))
+#     print "_________"
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
