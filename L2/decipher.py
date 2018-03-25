@@ -52,7 +52,7 @@ while X != "":
                 singleHit.append(probString[i] ^ ord(x))
             sent = ''.join(arrayOfNumberToArrayOfASCII(singleHit)).lower()
             # if probableSentence(sent, minProb, [x.lower() for x in dictlist]):
-            print(sent, it, X, len(probString), len(sent)*8)
+            print(sent, it, X, len(probString), len(sent))
     X = raw_input(">")
     print("-----------------------", X)
             
