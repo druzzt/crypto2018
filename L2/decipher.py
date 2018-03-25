@@ -9,12 +9,16 @@ from loaders import strxor
 from loaders import strxorShifted
 from loaders import arrayOfNumberToArrayOfASCII
 from loaders import arrayOfAsciiToArrayOfNumber
+from loaders import readConcordance
+from loaders import probableSentence
+import pdb
 
 import string
 import collections
 import sets
 
 ciphertextsList = readFile("ciphertexts/all.txt")
+dictlist = readConcordance("concordance/raj.txt", 1000)
 listsOfBytes = convertTo(ciphertextsList)
 superarr = []
 for byteList in listsOfBytes:
@@ -25,61 +29,193 @@ for byteList in listsOfBytes:
     superarr.append(arr)
 
 
-dicted = dict.fromkeys(string.ascii_letters, 1)
-special = dict.fromkeys(".-,'!?", 1)
+dicted = dict.fromkeys(string.ascii_letters, 0)
+special = dict.fromkeys(".-,'!? ", 0)
 dicted.update(special)
 
-known_key_positions = set()
 size_of_seeked_cipher = len(superarr[len(superarr)-1])
-final_key = [None]*size_of_seeked_cipher
 
 d = []
+for index1, ciphertext1 in enumerate(superarr):
+    xored = strxor(ciphertext1, superarr[len(superarr)-1])
+    d.append(xored)
+
+
+X = "A"
+minProb = 0.5
+while X != "":
+# for X in dictlist[::-1]:
+    for it, probString in enumerate(d):
+        if len(X) < size_of_seeked_cipher:
+            singleHit = []
+            for i, x in enumerate(X):
+                singleHit.append(probString[i] ^ ord(x))
+            sent = ''.join(arrayOfNumberToArrayOfASCII(singleHit)).lower()
+            # if probableSentence(sent, minProb, [x.lower() for x in dictlist]):
+            print(sent, it, X, len(probString), len(sent)*8)
+    X = raw_input(">")
+    print("-----------------------", X)
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# dicted.update({"Romeo": 0})
+# dicted.update({"Juliet": 0})
+# # dicted.update({"Oh!": 0})
+# # print dicted
+
+# dictlist = []
+# for key, value in dicted.iteritems():
+#     temp = [key,value]
+#     dictlist.append(temp)
+# print dictlist
+
+# known_key_positions = set()
+# final_key = [None]*size_of_seeked_cipher
+# target_cipher = superarr[len(superarr)-1]
+# print target_cipher
+
+# d = []
 # for index1, ciphertext1 in enumerate(superarr):
 #     counter = collections.Counter()
 #     for index2, ciphertext2 in enumerate(superarr):
 #         if index1 != index2:
 #             d.append(strxor(ciphertext1, ciphertext2))
 
-counter = collections.Counter()
-for index1, ciphertext1 in enumerate(superarr):
-    if index1 < len(superarr)-1 and index1 > 0:
-        xored = strxor(ciphertext1, superarr[index1-1])
-        d.append(xored)
-        for i, letter in enumerate(arrayOfNumberToArrayOfASCII(xored)):
-            if letter.isalpha() and letter in string.printable:
-                counter[i] += 1
 
-knownSpaceIndexes = []
-for ind, val in counter.items():
-    if val >= 7: knownSpaceIndexes.append(ind)
-print (knownSpaceIndexes, "<- space's indices") # Shows all the positions where we now know the key!
-print ("---------")
+# counter = collections.Counter()
+# forEachDProbableSpace = []
+# for index1, ciphertext1 in enumerate(superarr):
+#     if index1 < len(superarr)-1:
+#         xored = strxor(ciphertext1, superarr[index1-1])
+#         probableSpace = []
+#         for i, letter in enumerate(arrayOfNumberToArrayOfASCII(xored)):
+#             # if letter.isalpha() and letter in string.printable:
+#             if letter in dicted and letter in string.printable:
+#                 if xored not in d:
+#                     d.append(xored)
+#                     counter[i] += 1
+#                 probableSpace.append({i: letter})
+#         print (index1, probableSpace, len(ciphertext1), len(probableSpace))
+#         forEachDProbableSpace.append(probableSpace)
+
+# print("--------- THE END --------")
 
 
-oksized = []
-for ds in d:
-    if len(ds) >= size_of_seeked_cipher:
-        oksized.append(ds)
-print len(oksized)
-print oksized
 
-print "++++++++++++++++"
 
-for ciph in superarr:
 
-    xor_with_spaces = strxor(ciph, [32]*size_of_seeked_cipher)
-    for index in knownSpaceIndexes:
-        if len(xor_with_spaces) < index: pass
-        else:
-            # print(index, len(xor_with_spaces))
-            final_key[index] = xor_with_spaces[index]
-            known_key_positions.add(index)
 
-print "----------+++++++++++++---------------"
-# print knownSpaceIndexes
-# print len(xor_with_spaces)
-# print (known_key_positions)
-print ''.join(arrayOfNumberToArrayOfASCII(final_key))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#         cribDetected = []
+#         previouslyHit = []
+#         for crib in dictlist:
+#             for ishift, shift in enumerate(xored):
+#                 for ilet, letter in enumerate(xored):
+#                     hit = []
+#                     for icriblet, cribLetter in enumerate(crib):
+#                         if icriblet >= ilet:
+#                             oneDet = xor(ord(cribLetter), xored[ishift])
+#                             cribDetected.append(oneDet)
+#                             # for aLetterInsideOneDet in oneDet:
+#                             if oneDet > 32 and oneDet < 127:
+#                                 # print(oneDet)
+#                                 hit.append(oneDet)
+#                             else:
+#                                 break
+#                     if hit in previouslyHit:
+#                         break
+#                     else:
+#                         previouslyHit.append(hit)
+#                         # if len(hit) > 4:
+#                         #     print ''.join(arrayOfNumberToArrayOfASCII(hit))
+#         for index, hit in enumerate(previouslyHit):
+#             if len(hit)> 6:
+#                 print ''.join(arrayOfNumberToArrayOfASCII(hit))
+#         print "$$$$$$$$$$$"
+                            
+#         # print ''.join(arrayOfNumberToArrayOfASCII(cribDetected))
+
+                        
+
+
+# knownSpaceIndexes = []
+# for ind, val in counter.items():
+#     if val >= 7: knownSpaceIndexes.append(ind)
+# # print (knownSpaceIndexes, "<- space's indices") # Shows all the positions where we now know the key!
+# # print ("---------")
+
+
+# oksized = []
+# for ds in d:
+#     if len(ds) >= size_of_seeked_cipher:
+#         oksized.append(ds)
+# # print len(oksized)
+# # print oksized
+
+# # print "++++++++++++++++"
+
+# for ciph in superarr:
+
+#     xor_with_spaces = strxor(ciph, [32]*size_of_seeked_cipher)
+#     for index in knownSpaceIndexes:
+#         if len(xor_with_spaces) < index: pass
+#         else:
+#             # print(index, len(xor_with_spaces))
+#             final_key[index] = xor_with_spaces[index]
+#             known_key_positions.add(index)
+
+# # print "----------+++++++++++++---------------"
+
+# # final_key_bin = [val if val is not None else 0 for val in final_key]
+# # # print final_key_bin
+
+# # output = strxor(target_cipher, final_key_bin)
+# # print ''.join(arrayOfNumberToArrayOfASCII(output))
+
+
+
+
+
+
+
+
+
+
 
 
 # now brute xor against non space indiced cipher letters

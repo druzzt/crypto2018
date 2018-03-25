@@ -1,5 +1,6 @@
 import binascii
 import string
+import math 
 
 def readFile(filename):
     with open(filename) as fileobj:
@@ -13,6 +14,20 @@ def readFile(filename):
             else:
                 ciphertextsList.append(singleCiphertext[:-3])
         return ciphertextsList
+
+def readConcordance(filename, numberOfLinesToRead):
+    with open(filename) as fileobj:
+        conc = []
+        for number, line in enumerate(fileobj):
+            if number < numberOfLinesToRead:
+                singleLine = line
+                newsing = singleLine.split(":")
+                singleLine = newsing[1].strip()
+                # print singleLine
+                conc.append(singleLine)
+            else:
+                break
+        return conc
 
 def turn_to_dict(*args):
     return {i: v for i, v in enumerate(args)}
@@ -75,7 +90,7 @@ def arrayOfNumberToArrayOfASCII(arrayOfNumbers):
         if number_is_ascii(i):
             ofAscii.append(asciid(i))
         else:
-            ofAscii.append("^")
+            ofAscii.append("`")
     return ofAscii
 
 def arrayOfAsciiToArrayOfNumber(arrayOfAscii):
@@ -83,3 +98,12 @@ def arrayOfAsciiToArrayOfNumber(arrayOfAscii):
     for i in arrayOfAscii:
         ofNumber.append(ord(i))
     return ofNumber
+
+def probableSentence(string, atLeastProbability, engDict):
+    howManyHaveIToRepeat = math.ceil(atLeastProbability * len(string))
+    for char in string:
+        if howManyHaveIToRepeat == 0:
+            return True
+        if char.isalpha() and string in engDict:
+            howManyHaveIToRepeat -= 1
+    return False
