@@ -2,37 +2,46 @@
 
 # ENC FILE: -----------
 # ./encDec.sh -ef fileToEncrypt keyToEncrypt 00001
-if [[ $1 == "-ef"]]
+if [[ $1 == "-ef" ]]
 then 
-    cat $2 | openssl enc -e -aes-256-cbc -k $3 -nosalt -iv $4 > $2.e
+    cat $2 | openssl enc -e -aes-256-cbc -k $3 -nosalt -iv $4
 fi
 # ---------------
 
 # DEC FILE: ----------
 # ./encDec.sh -df fileToDecrypt keyToEncrypt 00001
-if [[ $1 == "-df"]]
+if [[ $1 == "-df" ]]
 then
-    cat $2 | openssl enc -d -aes-256-cbc -k $3 -nosalt -iv $4 > $2.d
+    cat $2 | openssl enc -d -aes-256-cbc -k $3 -nosalt -iv $4
 fi
 # ---------------
 
 # ENC ORACLE: -----------
-# ./encDec.sh -eo m0.file m1.file keyToEncrypt 00001
+# # ./encDec.sh -eo m0.file m1.file keyToEncrypt 00001
+# # cat $2 | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5 > $2.e
+# # cat $3 | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5 > $3.e
+# ./encDec.sh -eo keyToEncrypt 000001 m0 ... mq
 if [[ $1 == "-eo" ]]
 then
-    cat $2 | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5 > $2.e
-    cat $3 | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5 > $3.e
+    i=1
+    for arg do
+        if [[ i -gt 3 ]]
+        then
+            echo $arg | openssl enc -e -aes-256-cbc -k $2 -nosalt -iv $3 #> $arg.enc
+        fi
+        i=$((i + 1))
+    done
 fi
 # ---------------
 
-# DEC ORACLE: --------
-# ./encDec.sh -do m0.e m1.e keyToEncrypt 00001
-if [[ $1 == "-do"]]
-then
-    cat $2 | openssl enc -d -aes-256-cbc -k $4 -nosalt -iv $5 > $2.d
-    cat $3 | openssl enc -d -aes-256-cbc -k $4 -nosalt -iv $5 > $3.d
-fi
-# ---------------
+# # DEC ORACLE: --------
+# # ./encDec.sh -do m0.e m1.e keyToEncrypt 00001
+# if [[ $1 == "-do" ]]
+# then
+#     cat $2 | openssl enc -d -aes-256-cbc -k $4 -nosalt -iv $5 > $2.d
+#     cat $3 | openssl enc -d -aes-256-cbc -k $4 -nosalt -iv $5 > $3.d
+# fi
+# # ---------------
 
 
 # CHALLENGE ORACLE: ------- 
@@ -42,33 +51,33 @@ then
     random_index=$((RANDOM%2))+1
     args=("$@")
     random_msg=${args[$random_index]}
-    echo $random_msg | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5
+    cat $random_msg | openssl enc -e -aes-256-cbc -k $4 -nosalt -iv $5
+    # printf "\n"
 fi
 # ---------------
 
 
+# DEC MSG:  ------- 
+if [[ $1 == "-dm" ]]
+then
+    cat $2 | openssl enc -d -aes-256-cbc -k $3 -nosalt -iv $4
+fi
+# ---------------
 
-
-
-
-# # if [[ $1 == "-eo" ]]
-# # then
-# #     i=1
-# #     for arg do
-# #         if [[ i -gt 3 ]]
-# #         then
-# #             # printf '%s\n' "Arg $i: $arg" | openssl enc -aes-256-cbc -k $2 -nosalt
-# #             printf '%s\n' "$arg" | openssl enc -aes-256-ofb -k $2 -nosalt > $3
-# #             # printf '\n' >> EO.enc
-# #         fi
-# #         i=$((i + 1))
-# #     done
-# #     exit 1
-# # fi
-
-# # if [[ $1 == "-d" ]]
-# # then
-# #     openssl enc -d -aes-256-cbc -in $2 -out $3 -iv $4 -nosalt
-# # else
-# #     openssl enc -aes-256-cbc -in $1 -out $2 -iv $3 -nosalt
-# # fi
+# PREDICT MODE: -------
+if [[ $1 == "-p" ]]
+then
+    make
+    # printf "\n"
+    ivPrevious=46454544
+    ivPredicte=46454545
+    ./encDec.sh -eo keyToEncrypt $ivPrevious $2 > $2.enc
+    # ./encDec.sh -df $2.enc keyToEncrypt $ivPredicte
+    # ./encDec.sh -df $2.enc keyToEncrypt $ivPrevious
+    ./predict $ivPrevious $ivPredicte $2.enc > $2.predict
+    ./encDec.sh -co $2.predict $3 keyToEncrypt $ivPredicte > $2.enc2
+    ./encDec.sh -dm $2.enc2 keyToEncrypt $ivPredicte
+    ./distinguishMsgs $2.enc2 $2.enc
+    printf "\n"
+fi
+# ---------------
